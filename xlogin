@@ -1,0 +1,70 @@
+#!/bin/bash
+
+if [[ "$1" = "init" ]]; then
+    export PATH=$PATH:$(pwd)
+    exit;
+fi
+
+# if [[ "$1" = "test" ]]; then
+#     shift;
+#
+#     docker rename app_test gateway_$(date +%s)
+#
+#     docker run \
+#         --name=app_test \
+#         --env-file ./_env \
+#         -e NODE_ENV=development \
+#         -e HTTP_PORT=81 \
+#         -v $(pwd)/lib:/opt/app/lib \
+#         app node_modules/.bin/jest $*;
+#
+#     exit;
+# fi
+
+if [[ "$1" = "stop" ]]; then
+    docker stop app;
+    docker rm app;
+    exit;
+fi
+
+if [[ "$1" = "build" ]]; then
+    docker stop app
+    docker rm app
+
+    docker build -t app ./
+fi
+
+if [[ "$1" = "ls" ]]; then
+    docker ps
+    exit;
+fi
+
+
+if [[ "$1" = "log" ]] && [[ "$2" = "test" ]]; then
+    shift;
+    shift;
+
+    docker logs $1 app_test;
+    exit;
+fi
+
+if [[ "$1" = "log" ]]; then
+    shift;
+
+    docker logs $1 app;
+    exit;
+fi
+
+if [[ "$1" = "exec" ]]; then
+    shift;
+
+    docker exec app $*;
+    exit;
+fi
+
+docker run \
+    -d \
+    --name=app \
+    -p 80:80 \
+    -v $(pwd)/app/components:/opt/app/components \
+    app nginx

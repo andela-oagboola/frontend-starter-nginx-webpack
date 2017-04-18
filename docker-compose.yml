@@ -1,0 +1,31 @@
+version: "2"
+
+networks:
+  back-tier:
+    driver: bridge
+
+services:
+
+  app:
+    build: .
+    environment:
+      - NODE_PATH=/opt/app/lib
+      - CONSUL_AGENT=1
+      - CONSUL=consul
+      - CONSUL_HOST=localhost
+      - PORT=3000
+      - APP_NAME=login-ui
+      - APP_VERISON=1.0.0
+    mem_limit: 512m
+    volumes:
+      - ./app:/opt/app
+    networks:
+      - back-tier
+    ports:
+      - 8000:80
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "2"
+    command: >
+     bash -c 'nginx & /opt/app/node_modules/.bin/nodemon --exec "npm run xbuild"'
